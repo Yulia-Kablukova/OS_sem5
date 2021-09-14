@@ -1,4 +1,4 @@
-#include <cstdio>
+#include <stdio.h>
 #include <pthread.h>
 
 void *func(void *param) {
@@ -7,14 +7,14 @@ void *func(void *param) {
         printf("child line %d\n", i);
     }
 
-	return nullptr;
+	return NULL;
 }
 
 int main() {
 
     pthread_t th;
 
-    if (pthread_create(&th, nullptr, func, nullptr) != 0) {
+    if (pthread_create(&th, NULL, func, NULL) != 0) {
         printf("error while creating a thread\n");
         return 0;
     }
@@ -23,6 +23,6 @@ int main() {
         printf("parent line %d\n", i);
     }
 
-    pthread_exit(nullptr);
+    pthread_exit(NULL);
     return 0;
 }
