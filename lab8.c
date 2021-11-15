@@ -31,6 +31,11 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    if (threads_number < 1) {
+        printf("Incorrect number of threads\n");
+        return 0;
+    }
+
     pthread_t th[threads_number];
     struct args a[threads_number];
 
