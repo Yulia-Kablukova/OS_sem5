@@ -52,6 +52,10 @@ int main(int argc, char **argv) {
     int id = 0;
 
     while (1) {
+        if (CTRL_C_FLAG) {
+            break;
+        }
+
         for (i = 0; i < threads_number; i++) {
             if (CTRL_C_FLAG) {
                 break;
