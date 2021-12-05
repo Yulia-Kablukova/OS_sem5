@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <signal.h>
 
-#define num_steps 2000
+#define num_steps 20000000
 
 int CTRL_C_FLAG = 0;
 
@@ -13,17 +13,16 @@ struct args {
 };
 
 void calculate(struct args* a) {
-
-    a->sum = 0;
-
     for (int i = a->id*num_steps; i < a->id*num_steps + num_steps; i++) {
+        if (i % 1000000 == 0 && CTRL_C_FLAG) {
+            pthread_exit(NULL);
+        }
         a->sum += 1.0/(i*4.0 + 1.0);
         a->sum -= 1.0/(i*4.0 + 3.0);
     }
 }
 
 void my_handler(sig_atomic_t s){
-    printf("\n");
     CTRL_C_FLAG = 1;
 }
 
@@ -48,30 +47,34 @@ int main(int argc, char **argv) {
     pthread_t th[threads_number];
     struct args a[threads_number];
     double pi = 0;
-    int i;
     int id = 0;
+
+    for (int i = 0; i < threads_number; i++) {
+        a[i].sum = 0;
+    }
 
     while (1) {
         if (CTRL_C_FLAG) {
             break;
         }
 
-        for (i = 0; i < threads_number; i++) {
+        for (int i = 0; i < threads_number; i++) {
             if (CTRL_C_FLAG) {
                 break;
             }
+            pthread_join(th[i], NULL);
             a[i].id = id++;
             if (pthread_create(&(th[i]), NULL, (void *(*)(void *)) calculate, &a[i]) != 0) {
                 printf("error while creating a thread %d\n", i);
                 pthread_exit(NULL);
             }
         }
-
-        for (int j = 0; j < i; j++) {
-            pthread_join(th[j], NULL);
-            pi += a[j].sum;
-        }
     }
+    
+    for (int i = 0; i < threads_number; i++) {
+        pthread_join(th[i], NULL);
+        pi += a[i].sum;
+    }    
 
     pi = pi * 4.0;
 
