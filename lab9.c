@@ -70,15 +70,15 @@ int main(int argc, char **argv) {
             }
         }
     }
-    
+
     for (int i = 0; i < threads_number; i++) {
         pthread_join(th[i], NULL);
         pi += a[i].sum;
-    }    
+    }
 
     pi = pi * 4.0;
 
-    printf("pi done - %.15g \n", pi);
+    printf("\npi done - %.15g \n", pi);
 
     pthread_exit(NULL);
 }
