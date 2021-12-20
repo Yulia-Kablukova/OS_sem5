@@ -12,24 +12,23 @@ void destroyMutex(int index) {
     }
 }
 
-void stop(char *errorMsg) {
-    destroyMutex(3);
-    perror(errorMsg);
-    exit(EXIT_FAILURE);
-}
-
 void lockMutex(int index) {
-    if (pthread_mutex_lock(&m[index]))
-        stop("Error lock mutex");
+    if (pthread_mutex_lock(&m[index])) {
+        destroyMutex(3);
+        exit(EXIT_FAILURE);
+    }
 }
 
 void unlockMutex(int index) {
-    if (pthread_mutex_unlock(&m[index]))
-        stop("Error unlock mutex");
+    if (pthread_mutex_unlock(&m[index])) {
+        destroyMutex(3);
+        exit(EXIT_FAILURE);
+    }
 }
 
 void initMutexes() {
     pthread_mutexattr_init(&attr);
+    
     if (pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK)) {
         exit(EXIT_FAILURE);
     }
@@ -44,18 +43,17 @@ void initMutexes() {
 
 void *childFunc() {
     int n = 0;
-    
     lockMutex(1);
-    
+
     for (int i = 0; i < 10; ++i) {
         lockMutex(n);
         printf("child line %d\n", i);
         unlockMutex((n + 1) % 3);
         n = (n + 2) % 3;
     }
-    
+
     unlockMutex(0);
-    
+
     return NULL;
 }
 
@@ -73,7 +71,7 @@ int main() {
     }
 
     if (sleep(1)) {
-        stop("Sleep was interrupted");
+        destroyMutex(3);
         pthread_exit(NULL);
     }
 
